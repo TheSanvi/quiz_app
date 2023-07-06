@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:convert'as convert;
+import 'package:http/http.dart' as http;
+
 
 void main() {
   runApp(const MyApp());
@@ -33,10 +36,11 @@ class MyApp extends StatelessWidget {
 }
 
 class TestQuiz extends StatefulWidget {
-  const TestQuiz({super.key});
+   TestQuiz({super.key});
 
   @override
   State<TestQuiz> createState() => _TestQuizState();
+  String link = "/TheSanvi/6adfcac228399158ce3db1a1ee1a9e09/raw/05ee197ee3d29c72f5e1ad1927c2ed00202ff902/gistfile1.txt";
 }
 class _TestQuizState extends State<TestQuiz> {
 
@@ -166,25 +170,81 @@ class _TestQuizState extends State<TestQuiz> {
 
 class QuestionArray {
   static List<Question> questions = [
-    Question("1. Flutter is an open-source UI toolkit.",true),
-    Question("2. Flutter is developed by Microsoft.",false),
-    Question("3. There are 4 types of widget in flutter.",false),
-    Question("4. Dart Programming is used to build flutter application.",true),
-    Question("5. Access to a cloud database through Flutter is available through MY SQL service.",false),
-    Question("6. Stateless widget type allows you to modify its appearance dynamically according to user input.",false),
-    Question("7. A sequence of asynchronous Flutter events is known as Stream.",false),
-    Question("8. Flutter supports desktop application development.",true),
-    Question("9. Stack widget we use for repeating content in Flutter.",false),
-    Question("10. Flutter teams are inherently more difficult to manage because the framework is so new. ",false),
+    Question(question:"Flutter is an open-source UI toolkit.",correctAnswer :true),
+    Question(question:"Flutter is developed by Microsoft.",correctAnswer :false),
+    Question(question:"There are 4 types of widget in flutter.",correctAnswer :false),
+    Question(question:"Dart Programming is used to build flutter application.",correctAnswer :true),
+
 
   ];
 }
-
 class Question {
-  String question = "";
-  bool correctAnswer = false;
+  final String question;
+  final bool correctAnswer;
 
-  Question(this.question, this.correctAnswer);
+  Question({required this.question, required this.correctAnswer});
+
+  factory Question.fromJson(Map<String, dynamic> json) {
+    return Question(
+        question: json['question'] as String,
+        correctAnswer:
+        ((json['correctanswer'].toString() == "true") ? true : false));
+  }
+
+  @override
+  String toString() {
+    return "Question=" +
+        question +
+        ", Correct Answer=" +
+        correctAnswer.toString();
+  }
+}
+
+class QuestionsArray {
+  final List<dynamic> lstQuestions;
+
+  QuestionsArray({required this.lstQuestions});
+
+  factory QuestionsArray.fromJson(Map<String, dynamic> json) {
+    return QuestionsArray(lstQuestions: json['questions'] as List<dynamic>);
+  }
+}
+
+class Downloader {
+  Future getDownloadedData(String link) async {
+    final url = Uri.https(
+        "gist.githubusercontent.com",
+        link,
+        {});
+
+    try {
+      final response = await http.get(url);
+      //print(response);
+      //print(response.statusCode);
+      final jsonResponse = convert.jsonDecode(response.body);
+      //print(jsonResponse);
+      return jsonResponse;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+}
+
+class Utilities {
+  void show(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        action: SnackBarAction(
+          label: 'Close',
+          onPressed: () {
+            // Code to execute.
+          },
+        ),
+      ),
+    );
+  }
 }
 
 
